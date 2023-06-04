@@ -18,6 +18,7 @@ import com.viettel.jobfinder.modules.user.User;
 import com.viettel.jobfinder.modules.user.repository.UserRepository;
 import com.viettel.jobfinder.security.SecurityConstants;
 import com.viettel.jobfinder.shared.exception.EntityNotFoundException;
+import com.viettel.jobfinder.shared.exception.ForbiddenException;
 import com.viettel.jobfinder.shared.exception.NotFoundException;
 import com.viettel.jobfinder.shared.exception.UserExistedException;
 
@@ -47,6 +48,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUser(String username) {
         System.out.println("Check getUser(string username)");
+        if (username == "anonymousUser") {
+            throw new ForbiddenException("You are not allowed to access this resource");
+        }
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent())
             return user.get();

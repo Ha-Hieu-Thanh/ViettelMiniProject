@@ -1,5 +1,6 @@
 package com.viettel.jobfinder.modules.user.controller;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
@@ -9,9 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +30,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.viettel.jobfinder.modules.job.dto.LoginDto;
 import com.viettel.jobfinder.modules.user.User;
 import com.viettel.jobfinder.modules.user.dto.UserRequestDto;
 import com.viettel.jobfinder.modules.user.dto.UserResponseDto;
@@ -32,7 +38,10 @@ import com.viettel.jobfinder.modules.user.service.UserService;
 import com.viettel.jobfinder.security.SecurityConstants;
 import com.viettel.jobfinder.shared.annotation.CurrentUser;
 import com.viettel.jobfinder.shared.annotation.Public;
+import com.viettel.jobfinder.shared.exception.ErrorResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -43,6 +52,8 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@GetMapping("/{id}")
 	public ResponseEntity<String> findById(@PathVariable Long id) {
@@ -77,7 +88,6 @@ public class UserController {
 		} else {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
-
 	}
 
 	@GetMapping("/whoami")
@@ -90,4 +100,19 @@ public class UserController {
 		}
 	}
 
+	@PostMapping("/login")
+	@Public
+	@Operation(summary = "Authenticate a user and generate access and refresh tokens")
+	public ResponseEntity<?> login(@Valid @RequestBody LoginDto login) {
+		try {
+			User user = userService.getUser(login.getUsername());
+			if (!bCryptPasswordEncoder.matches(login.getPassword(), user.getPassword())) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(Arrays.asList("Wrong password")));
+			}
+			ObjectNode responseBody = userService.getToken(user);
+			return new ResponseEntity<>(responseBody, HttpStatus.OK);
+		} catch (AuthenticationException e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(Arrays.asList(e.getMessage())));
+		}
+	}
 }

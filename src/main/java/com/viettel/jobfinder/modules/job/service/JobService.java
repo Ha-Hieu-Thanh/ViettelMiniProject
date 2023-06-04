@@ -88,4 +88,9 @@ public class JobService {
     Employer employer = employerService.getEmployerInfo(userEmployerId);
     return jobRepository.findByEmployer(employer);
   }
+
+  public List<Job> filterJobs(Long jobId, Long userEmployerId, int pageNumber, int pageSize) {
+    int offset = (pageNumber - 1) * pageSize;
+    return jobRepository.filterJobs(jobId, userEmployerId, pageSize, offset);
+  }
 }
