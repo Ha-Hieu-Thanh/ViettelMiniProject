@@ -1,15 +1,18 @@
 package com.viettel.jobfinder.modules.job.controller;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
 // import org.springdoc.core.converters.models.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,10 +32,14 @@ import com.viettel.jobfinder.modules.job.dto.EditJobRequestDto;
 import com.viettel.jobfinder.modules.job.dto.JobResponseDto;
 import com.viettel.jobfinder.modules.job.dto.SearchJobQueryDto;
 import com.viettel.jobfinder.modules.job.service.JobService;
+import com.viettel.jobfinder.shared.Utils;
 import com.viettel.jobfinder.shared.annotation.CurrentUser;
 import com.viettel.jobfinder.shared.annotation.EmployeePermission;
 import com.viettel.jobfinder.shared.annotation.EmployerPermission;
 import com.viettel.jobfinder.shared.annotation.Public;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 
 @RestController
 @RequestMapping("job")
@@ -40,20 +47,19 @@ public class JobController {
   @Autowired
   private JobService jobService;
 
-  // @GetMapping
-  // @Public
-  // public ResponseEntity<List<JobResponseDto>> filterJobs(
-  // @RequestParam(name = "jobId", required = false) Long jobId,
-  // @RequestParam(name = "userEmployerId", required = false) Long userEmployerId,
-  // @PageableDefault(size = 20, page = 0, sort = "jobId", direction =
-  // Sort.Direction.ASC) Pageable pageable) {
-  // List<Job> jobs = jobService.filterJobs(jobId, userEmployerId, pageable);
-  // List<JobResponseDto> jobResponseDtos = jobs.stream()
-  // .map(JobResponseDto::new)
-  // .collect(Collectors.toList());
-
-  // return ResponseEntity.ok(jobResponseDtos);
-  // }
+  @GetMapping
+  @Public
+  public ResponseEntity<List<JobResponseDto>> filterJobs(
+      @RequestParam(name = "jobId", required = false) Long jobId,
+      @RequestParam(name = "userEmployerId", required = false) Long userEmployerId,
+      @RequestParam(name = "title", required = false) String title,
+      @RequestParam(name = "location", required = false) String location,
+      @RequestParam(name = "active", required = false) Long active,
+      @PageableDefault(size = 20, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+    Page<Job> jobs = jobService.filterJobs(jobId, userEmployerId, title, location, active, pageable);
+    Function<Job, JobResponseDto> mapJobToJobResponseDto = JobResponseDto::new;
+    return Utils.buildPaginationResponse(jobs, mapJobToJobResponseDto);
+  }
 
   @PostMapping
   @EmployerPermission
