@@ -15,6 +15,7 @@ import com.viettel.jobfinder.modules.employee.repository.EmployeeRepository;
 import com.viettel.jobfinder.modules.employer.Employer;
 import com.viettel.jobfinder.modules.employer.repository.EmployerRepository;
 import com.viettel.jobfinder.modules.user.User;
+import com.viettel.jobfinder.modules.user.dto.TokenResponse;
 import com.viettel.jobfinder.modules.user.repository.UserRepository;
 import com.viettel.jobfinder.security.SecurityConstants;
 import com.viettel.jobfinder.shared.exception.EntityNotFoundException;
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ObjectNode getToken(User user) {
+    public TokenResponse getToken(User user) {
         String new_access_token = JWT.create()
                 .withClaim("username", user.getUsername())
                 .withClaim("role", user.getRole().getValue())
@@ -91,14 +92,7 @@ public class UserServiceImpl implements UserService {
                 .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.REFRESH_TOKEN_EXPIRATION))
                 .sign(com.auth0.jwt.algorithms.Algorithm.HMAC512(SecurityConstants.REFRESH_SECRET_KEY));
 
-        // Tạo một đối tượng ObjectMapper
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        // Tạo một đối tượng JsonNode chứa mã thông báo truy cập
-        ObjectNode responseBody = objectMapper.createObjectNode();
-        // Thêm token vào phản hồi
-        responseBody.put("access_token", new_access_token);
-        responseBody.put("refresh_token", new_refresh_token);
+        TokenResponse responseBody = new TokenResponse(new_access_token, new_refresh_token);
         return responseBody;
     }
 

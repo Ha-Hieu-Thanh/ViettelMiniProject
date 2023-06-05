@@ -8,13 +8,13 @@ import lombok.Data;
 
 @Data
 public class ApplicationResponseDto {
-  private long userId;
+  private long userEmployeeId;
   private long jobId;
   private boolean accepted;
   private String message;
 
   public ApplicationResponseDto(Application application) {
-    this.userId = application.getEmployee().getUser().getId();
+    this.userEmployeeId = application.getEmployee().getUser().getId();
     this.jobId = application.getJob().getId();
     this.accepted = application.isAccepted();
     this.message = application.getMessage();

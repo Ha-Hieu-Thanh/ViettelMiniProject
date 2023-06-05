@@ -6,7 +6,10 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.media.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,7 +33,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.viettel.jobfinder.modules.job.dto.LoginDto;
+import com.viettel.jobfinder.modules.user.dto.LoginDto;
+import com.viettel.jobfinder.modules.user.dto.TokenResponse;
 import com.viettel.jobfinder.modules.user.User;
 import com.viettel.jobfinder.modules.user.dto.UserRequestDto;
 import com.viettel.jobfinder.modules.user.dto.UserResponseDto;
@@ -41,13 +45,17 @@ import com.viettel.jobfinder.shared.annotation.Public;
 import com.viettel.jobfinder.shared.exception.ErrorResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/user")
 @PreAuthorize("isAuthenticated()")
+@Tag(name = "Authentication")
+@Order(1)
 public class UserController {
 
 	@Autowired
@@ -56,24 +64,25 @@ public class UserController {
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@GetMapping("/{id}")
-	public ResponseEntity<String> findById(@PathVariable Long id) {
+	@Public
+	public ResponseEntity<UserResponseDto> findById(@PathVariable Long id) {
 
-		return new ResponseEntity<>(userService.getUser(id).getUsername(), HttpStatus.OK);
+		return new ResponseEntity<>(UserResponseDto.fromUser(userService.getUser(id)), HttpStatus.OK);
 	}
 
-	@PreAuthorize("permitAll()")
 	@PostMapping("/register")
-	public ResponseEntity<Object> createUser(@Valid @RequestBody UserRequestDto userDto) {
+	@Public
+	public ResponseEntity<TokenResponse> createUser(@Valid @RequestBody UserRequestDto userDto) {
 		// convert dto to entity
 		User user = userDto.toUser();
 		userService.registerUser(user);
-		ObjectNode responseBody = userService.getToken(user);
+		TokenResponse responseBody = userService.getToken(user);
 		return new ResponseEntity<>(responseBody, HttpStatus.CREATED);
 	}
 
 	@PostMapping("/refresh")
 	@Public
-	public ResponseEntity<Object> refresh(@RequestHeader("Authorization") String token) {
+	public ResponseEntity<TokenResponse> refresh(@RequestHeader("Authorization") String token) {
 		// token = Barear + token
 		System.out.println("CHECK REFRESH");
 		if (token != null && token.startsWith("Bearer ")) {
@@ -83,7 +92,7 @@ public class UserController {
 					.verify(refresh_token);
 			String username = decodedJWT.getClaim("username").asString();
 			User user = userService.getUser(username);
-			ObjectNode responseBody = userService.getToken(user);
+			TokenResponse responseBody = userService.getToken(user);
 			return new ResponseEntity<>(responseBody, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -102,14 +111,15 @@ public class UserController {
 
 	@PostMapping("/login")
 	@Public
-	@Operation(summary = "Authenticate a user and generate access and refresh tokens")
+	@ApiResponse(responseCode = "200", description = "Successful login", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TokenResponse.class)))
+	@ApiResponse(responseCode = "401", description = "Invalid credentials", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<?> login(@Valid @RequestBody LoginDto login) {
 		try {
 			User user = userService.getUser(login.getUsername());
 			if (!bCryptPasswordEncoder.matches(login.getPassword(), user.getPassword())) {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(Arrays.asList("Wrong password")));
 			}
-			ObjectNode responseBody = userService.getToken(user);
+			TokenResponse responseBody = userService.getToken(user);
 			return new ResponseEntity<>(responseBody, HttpStatus.OK);
 		} catch (AuthenticationException e) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(Arrays.asList(e.getMessage())));

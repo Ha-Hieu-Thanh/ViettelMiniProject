@@ -26,9 +26,9 @@ public class OpenApiConfig {
                 .in(SecurityScheme.In.HEADER)
                 .name("Authorization")))
         .info(new Info()
-            .title("My API")
+            .title("Viettel Project - Job Finder API")
             .version("1.0.0")
-            .description("This is a sample API"))
+            .description("There are a list of APIs"))
         .addSecurityItem(new SecurityRequirement().addList("bearer-jwt", Arrays.asList("read", "write")));
   }
 }

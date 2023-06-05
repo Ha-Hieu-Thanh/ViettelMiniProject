@@ -25,7 +25,7 @@ public class CreateJobRequestDto {
 
   @NonNull
   @NotBlank(message = "salary is required")
-  private String salary;
+  private Double salary;
 
   private boolean active;
 }

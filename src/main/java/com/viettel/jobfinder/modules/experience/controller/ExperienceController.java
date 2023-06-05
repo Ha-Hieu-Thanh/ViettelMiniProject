@@ -3,6 +3,7 @@ package com.viettel.jobfinder.modules.experience.controller;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,14 +22,20 @@ import com.viettel.jobfinder.modules.experience.service.ExperienceService;
 import com.viettel.jobfinder.shared.annotation.CurrentUser;
 import com.viettel.jobfinder.shared.annotation.EmployeePermission;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/experience")
 @EmployeePermission
+@Tag(name = "Experience")
+@Order(5)
 public class ExperienceController {
   @Autowired
   private ExperienceService experienceService;
 
   @PostMapping
+  @Operation(summary = "Create experience (only for EMPLOYEE)")
   public ResponseEntity<ExperienceResponseDto> createEmployeeExperience(
       @CurrentUser("id") long userId,
       @Valid @RequestBody CreateEmployeeExperienceRequestDto createEmployeeExperienceRequestDto) {
@@ -38,6 +45,7 @@ public class ExperienceController {
   }
 
   @PutMapping("/{experienceId}")
+  @Operation(summary = "Edit experience (only for EMPLOYEE)")
   public ResponseEntity<ExperienceResponseDto> editEmployeeExperience(
       @CurrentUser("id") long userId,
       @PathVariable("experienceId") long experienceId,
@@ -48,6 +56,7 @@ public class ExperienceController {
   }
 
   @DeleteMapping("/{experienceId}")
+  @Operation(summary = "Delete experience (only for EMPLOYEE)")
   public ResponseEntity<Object> deleteEmployeeExperience(
       @CurrentUser("id") long userId,
       @PathVariable("experienceId") long experienceId) {

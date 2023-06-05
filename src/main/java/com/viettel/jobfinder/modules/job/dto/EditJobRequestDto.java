@@ -11,7 +11,7 @@ public class EditJobRequestDto {
 
   private String location;
 
-  private String salary;
+  private Double salary;
 
   private boolean active;
 }

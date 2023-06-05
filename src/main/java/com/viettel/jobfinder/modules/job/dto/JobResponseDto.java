@@ -21,7 +21,7 @@ public class JobResponseDto {
   private String title;
   private String jobDescription;
   private String location;
-  private String salary;
+  private Double salary;
   private boolean active;
 
   public JobResponseDto(Job job) {

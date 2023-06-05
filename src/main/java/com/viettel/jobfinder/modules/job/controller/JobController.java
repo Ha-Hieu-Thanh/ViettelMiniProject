@@ -8,7 +8,9 @@ import javax.validation.Valid;
 
 // import org.springdoc.core.converters.models.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Sort;
@@ -38,24 +40,39 @@ import com.viettel.jobfinder.shared.annotation.EmployeePermission;
 import com.viettel.jobfinder.shared.annotation.EmployerPermission;
 import com.viettel.jobfinder.shared.annotation.Public;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("job")
+@Tag(name = "Job")
+@Order(7)
 public class JobController {
   @Autowired
   private JobService jobService;
 
   @GetMapping
   @Public
+  @Operation(summary = "Get all jobs")
   public ResponseEntity<List<JobResponseDto>> filterJobs(
       @RequestParam(name = "jobId", required = false) Long jobId,
       @RequestParam(name = "userEmployerId", required = false) Long userEmployerId,
       @RequestParam(name = "title", required = false) String title,
       @RequestParam(name = "location", required = false) String location,
       @RequestParam(name = "active", required = false) Long active,
-      @PageableDefault(size = 20, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+      @RequestParam(name = "page", defaultValue = "0") int page,
+      @RequestParam(name = "size", defaultValue = "10") int size,
+      @RequestParam(name = "sort", defaultValue = "id") String[] sort,
+      @RequestParam(name = "sortDirection", defaultValue = "ASC") String sortDirection) {
+
+    Pageable pageable;
+    if (sortDirection.equals("ASC")) {
+      pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
+    } else {
+      pageable = PageRequest.of(page, size, Sort.by(sort).descending());
+    }
     Page<Job> jobs = jobService.filterJobs(jobId, userEmployerId, title, location, active, pageable);
     Function<Job, JobResponseDto> mapJobToJobResponseDto = JobResponseDto::new;
     return Utils.buildPaginationResponse(jobs, mapJobToJobResponseDto);
@@ -63,6 +80,7 @@ public class JobController {
 
   @PostMapping
   @EmployerPermission
+  @Operation(summary = "Create a job (only for Employer)")
   public ResponseEntity<JobResponseDto> createJob(@CurrentUser("id") long userId,
       @Valid @RequestBody CreateJobRequestDto data) {
     Job job = jobService.createJob(userId, data);
@@ -72,6 +90,7 @@ public class JobController {
 
   @PutMapping("/{jobId}")
   @EmployerPermission
+  @Operation(summary = "Edit a job (only for Employer)")
   public ResponseEntity<JobResponseDto> editJob(@CurrentUser("id") long userId, @PathVariable("jobId") long jobId,
       @Valid @RequestBody EditJobRequestDto data) {
     Job job = jobService.editJob(userId, jobId, data);
@@ -82,6 +101,7 @@ public class JobController {
 
   @DeleteMapping("/{jobId}")
   @EmployerPermission
+  @Operation(summary = "Delete a job (only for Employer)")
   public ResponseEntity<Object> deleteJob(@CurrentUser("id") long userId, @PathVariable("jobId") long jobId) {
     jobService.deleteJob(userId, jobId);
     return new ResponseEntity<>(HttpStatus.OK);

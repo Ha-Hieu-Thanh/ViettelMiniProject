@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.viettel.jobfinder.modules.employer.Employer;
@@ -62,4 +64,9 @@ public class EmployerService {
   public List<Employer> getEmployers() {
     return employerRepository.findAll();
   }
+
+  public Page<Employer> filterEmployer(Long userEmployerId, String username, String fullName, Pageable pageable) {
+    return employerRepository.filterEmployer(userEmployerId, username, fullName, pageable);
+  }
+
 }

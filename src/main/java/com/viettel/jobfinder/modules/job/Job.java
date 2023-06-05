@@ -27,7 +27,7 @@ import lombok.NonNull;
 public class Job {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
+  private Long id;
 
   @ManyToOne
   @JoinColumn(name = "employer_id")
@@ -47,7 +47,7 @@ public class Job {
 
   @Column(nullable = false)
   @NonNull
-  private String salary;
+  private Double salary;
 
   @Column(nullable = false, columnDefinition = "boolean default true")
   private boolean active;

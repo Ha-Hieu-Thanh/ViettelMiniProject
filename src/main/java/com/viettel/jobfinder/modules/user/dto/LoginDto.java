@@ -1,4 +1,4 @@
-package com.viettel.jobfinder.modules.job.dto;
+package com.viettel.jobfinder.modules.user.dto;
 
 import javax.validation.constraints.NotBlank;
 

@@ -3,7 +3,10 @@ package com.viettel.jobfinder.modules.application.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,7 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.viettel.jobfinder.modules.application.Application;
@@ -24,13 +29,18 @@ import com.viettel.jobfinder.shared.annotation.CurrentUser;
 import com.viettel.jobfinder.shared.annotation.EmployeePermission;
 import com.viettel.jobfinder.shared.annotation.EmployerPermission;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("application")
+@Tag(name = "Application")
+@Order(8)
 public class ApplicationController {
   @Autowired
   private ApplicationService applicationService;
 
-  // apply job, only for Employee
+  @Operation(summary = "Apply job (only for EMPLOYEE)")
   @PostMapping("/employee/{jobId}")
   @EmployeePermission
   public ResponseEntity<ApplicationResponseDto> createApplication(@CurrentUser("id") long userId,
@@ -40,6 +50,7 @@ public class ApplicationController {
   }
 
   // cancel application, only for Employee
+  @Operation(summary = "Cancel application (only for Employee)")
   @DeleteMapping("/employee/{jobId}")
   @EmployeePermission
   public ResponseEntity<Object> cancelApplication(@CurrentUser("id") long userId,
@@ -60,6 +71,7 @@ public class ApplicationController {
   // }
 
   // get all applied job for employee
+  @Operation(summary = "Get all applied job (only for Employee)")
   @GetMapping("/employee")
   @EmployeePermission
   public ResponseEntity<List<ApplicationResponseDto>> getAppliedJobs(@CurrentUser("id") long userId) {
@@ -69,38 +81,27 @@ public class ApplicationController {
     return ResponseEntity.ok(applicationsResponse);
   }
 
-  // get all applicants
-  @GetMapping("/employer/{jobId}")
+  @Operation(summary = "Get all applicants (only for Employer)")
+  @GetMapping("/employer")
   @EmployerPermission
   public ResponseEntity<List<ApplicationResponseDto>> getApplicants(@CurrentUser("id") long userId,
-      @PathVariable("jobId") long jobId) {
-    List<Application> applications = applicationService.getEmployeeListByJobId(userId, jobId);
+      @RequestParam(name = "jobId", required = false) Long jobId,
+      @RequestParam(name = "accepted", required = false) Long accepted) {
+    List<Application> applications = applicationService.filterApplication(userId, jobId, accepted);
     List<ApplicationResponseDto> applicationsResponse = applications.stream()
         .map(ApplicationResponseDto::new)
         .collect(Collectors.toList());
     return ResponseEntity.ok(applicationsResponse);
   }
 
-  @PutMapping("/employer/{jobId}/{userEmployeeId}")
+  @Operation(summary = "Approve application (only for Employer)")
+  @PutMapping("/employer")
   @EmployerPermission
   public ResponseEntity<ApplicationResponseDto> updateApplicationStatus(@CurrentUser("id") long userId,
-      @PathVariable("userEmployeeId") long userEmployeeId,
-      @PathVariable("jobId") long jobId, EditApplicationRequestDto data) {
+      @RequestParam("userEmployeeId") long userEmployeeId,
+      @RequestParam("jobId") long jobId, @Valid @RequestBody EditApplicationRequestDto data) {
     Application updatedApplication = applicationService.editApplication(userId, userEmployeeId, jobId, data);
     return new ResponseEntity<>(new ApplicationResponseDto(updatedApplication), HttpStatus.NO_CONTENT);
   }
-
-  // @GetMapping("/employer/{userEmployeeId}/{jobId}")
-  // @EmployerPermission
-  // public ResponseEntity<ApplicationResponseDto>
-  // getApplicationByEmployer(@CurrentUser("id") long userEmployerId,
-  // @PathVariable("userEmployeeId") long userEmployeeId, @PathVariable("jobId")
-  // long jobId) {
-  // Application application =
-  // applicationService.getApplicationByEmployer(userEmployerId, userEmployeeId,
-  // jobId);
-  // return new ResponseEntity<>(new ApplicationResponseDto(application),
-  // HttpStatus.OK);
-  // }
 
 }
