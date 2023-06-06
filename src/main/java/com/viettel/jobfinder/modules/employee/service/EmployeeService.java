@@ -1,5 +1,6 @@
 package com.viettel.jobfinder.modules.employee.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.viettel.jobfinder.modules.employee.Employee;
 import com.viettel.jobfinder.modules.employee.dto.EditEmployeeBasicInfoRequestDto;
@@ -78,4 +80,14 @@ public class EmployeeService {
     return employeeRepository.filterEmployee(userEmployeeId, username, fullName, pageable);
   }
 
+  public void uploadFile(Long userId, MultipartFile file) throws IOException {
+    Employee employee = getEmployeeInfo(userId);
+    employee.setResume(file.getBytes());
+    employeeRepository.save(employee);
+  }
+
+  public byte[] downloadFile(Long userId) {
+    Employee employee = getEmployeeInfo(userId);
+    return employee.getResume();
+  }
 }

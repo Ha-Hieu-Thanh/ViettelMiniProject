@@ -5,6 +5,8 @@ import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -14,6 +16,10 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Configuration
 public class OpenApiConfig {
+  @Bean
+  public MultipartResolver multipartResolver() {
+    return new StandardServletMultipartResolver();
+  }
 
   @Bean
   public OpenAPI customOpenAPI() {
