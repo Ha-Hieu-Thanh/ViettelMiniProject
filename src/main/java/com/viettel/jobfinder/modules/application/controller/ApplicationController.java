@@ -28,6 +28,7 @@ import com.viettel.jobfinder.modules.job.dto.JobResponseDto;
 import com.viettel.jobfinder.shared.annotation.CurrentUser;
 import com.viettel.jobfinder.shared.annotation.EmployeePermission;
 import com.viettel.jobfinder.shared.annotation.EmployerPermission;
+import com.viettel.jobfinder.shared.sendGrid.SendGridMailService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,6 +40,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class ApplicationController {
   @Autowired
   private ApplicationService applicationService;
+
+  @Autowired
+  private SendGridMailService sendGridMailService;
 
   @Operation(summary = "Apply job (only for EMPLOYEE)")
   @PostMapping("/employee/{jobId}")

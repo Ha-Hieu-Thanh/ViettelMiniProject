@@ -22,6 +22,7 @@ import com.viettel.jobfinder.shared.exception.EntityNotFoundException;
 import com.viettel.jobfinder.shared.exception.ForbiddenException;
 import com.viettel.jobfinder.shared.exception.NotFoundException;
 import com.viettel.jobfinder.shared.exception.UserExistedException;
+import com.viettel.jobfinder.shared.sendGrid.SendGridMailService;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,8 @@ public class UserServiceImpl implements UserService {
     private EmployerRepository employerRepository;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private SendGridMailService sendGridMailService;
 
     @Override
     public User getUser(Long id) {
@@ -76,6 +79,8 @@ public class UserServiceImpl implements UserService {
             // handle reg for employer
             employerRepository.save(new Employer(user));
         }
+
+        sendGridMailService.sendWelcomeMail(user.getEmail());
         return user;
     }
 

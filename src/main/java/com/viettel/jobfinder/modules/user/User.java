@@ -53,6 +53,9 @@ public class User {
 	@Column(nullable = false)
 	private String password;
 
+	@NotBlank(message = "email cannot be blank")
+	@NonNull
+	@Column(nullable = false, unique = true)
 	private String email;
 
 	private String mobilePhone;

@@ -21,6 +21,7 @@ import com.viettel.jobfinder.modules.job.dto.JobResponseDto;
 import com.viettel.jobfinder.modules.job.service.JobService;
 import com.viettel.jobfinder.modules.user.service.UserService;
 import com.viettel.jobfinder.shared.exception.NotFoundException;
+import com.viettel.jobfinder.shared.sendGrid.SendGridMailService;
 
 @Service
 public class ApplicationService {
@@ -32,11 +33,17 @@ public class ApplicationService {
   private EmployerService employerService;
   @Autowired
   private JobService jobService;
+  @Autowired
+  private SendGridMailService sendGridMailService;
 
   public Application applyJob(long userId, long jobId) {
+    Job job = jobService.getJobById(jobId);
+    Employee employee = employeeService.getEmployeeInfo(userId);
+    Employer employer = job.getEmployer();
     Application application = new Application();
-    application.setEmployee(employeeService.getEmployeeInfo(userId));
+    application.setEmployee(employee);
     application.setJob(jobService.getJobById(jobId));
+    sendGridMailService.sendApplySuccessfulMail(employer, job, employee);
     return applicationRepository.save(application);
   }
 
@@ -97,8 +104,9 @@ public class ApplicationService {
       EditApplicationRequestDto data) {
     Employee employee = employeeService.getEmployeeInfo(userEmployeeId);
     Employer employer = employerService.getEmployerInfo(userEmployerId);
+    Job job = jobService.getJobById(jobId);
     // check if employer have job
-    if (employer.getJobs().stream().noneMatch(job -> job.getId() == jobId)) {
+    if (employer.getJobs().stream().noneMatch(_job -> _job.getId() == jobId)) {
       throw new NotFoundException("You dont have this job");
     }
 
@@ -111,6 +119,12 @@ public class ApplicationService {
 
     if (Objects.nonNull(data.getMessage())) {
       application.setMessage(data.getMessage());
+    }
+
+    if (data.isAccepted() == true) {
+      sendGridMailService.sendAcceptedMail(employer, job, employee);
+    } else if (data.isAccepted() == false) {
+      sendGridMailService.sendRejectedMail(employer, job, employee);
     }
 
     return applicationRepository.save(application);

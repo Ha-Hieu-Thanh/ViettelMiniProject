@@ -1,6 +1,7 @@
 package com.viettel.jobfinder.modules.job.dto;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.Getter;
@@ -24,7 +25,7 @@ public class CreateJobRequestDto {
   private String location;
 
   @NonNull
-  @NotBlank(message = "salary is required")
+  @NotNull(message = "salary is required")
   private Double salary;
 
   private boolean active;

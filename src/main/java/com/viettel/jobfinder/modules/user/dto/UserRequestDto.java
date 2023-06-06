@@ -30,6 +30,8 @@ public class UserRequestDto {
   @NonNull
   private String password;
 
+  @NotBlank(message = "email cannot be blank")
+  @NonNull
   private String email;
   private String mobilePhone;
   private String location;
