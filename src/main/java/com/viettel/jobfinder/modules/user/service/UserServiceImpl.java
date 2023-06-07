@@ -27,9 +27,9 @@ import com.viettel.jobfinder.shared.sendGrid.SendGridMailService;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-@Service
 @AllArgsConstructor
 @NoArgsConstructor
+@Service
 public class UserServiceImpl implements UserService {
 
     @Autowired

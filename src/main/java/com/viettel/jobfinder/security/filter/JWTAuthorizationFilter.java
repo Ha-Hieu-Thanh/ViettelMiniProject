@@ -45,7 +45,6 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
       return;
     }
-    System.out.println("CHECK 1");
 
     String token = header.replace(SecurityConstants.BEARER, "");
     DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(SecurityConstants.ACCESS_SECRET_KEY))
@@ -54,8 +53,6 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     String username = decodedJWT.getClaim("username").asString();
     String role = decodedJWT.getClaim("role").asString();
 
-    System.out.println("CHECK 2" + username);
-    System.out.println("CHECK 3");
     Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, Collections
         .singletonList(new SimpleGrantedAuthority(role)));
     System.out.println(authentication.getAuthorities());

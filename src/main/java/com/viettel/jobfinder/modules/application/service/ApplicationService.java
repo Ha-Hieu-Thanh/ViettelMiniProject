@@ -122,9 +122,9 @@ public class ApplicationService {
     }
 
     if (data.isAccepted() == true) {
-      sendGridMailService.sendAcceptedMail(employer, job, employee);
+      sendGridMailService.sendAcceptedMail(employer, job, employee, application.getMessage());
     } else if (data.isAccepted() == false) {
-      sendGridMailService.sendRejectedMail(employer, job, employee);
+      sendGridMailService.sendRejectedMail(employer, job, employee, application.getMessage());
     }
 
     return applicationRepository.save(application);

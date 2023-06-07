@@ -101,7 +101,6 @@ public class UserController {
 
 	@GetMapping("/whoami")
 	public ResponseEntity<UserResponseDto> whoami(@CurrentUser User user) {
-		System.out.println("whoami");
 		if (user != null) {
 			return new ResponseEntity<>(UserResponseDto.fromUser(user), HttpStatus.OK);
 		} else {

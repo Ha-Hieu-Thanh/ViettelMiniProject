@@ -40,6 +40,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
-    // Other necessary configurations, such as authentication providers or user
-    // details service, can be added here
 }
