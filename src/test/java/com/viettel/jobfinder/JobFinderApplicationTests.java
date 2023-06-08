@@ -1,10 +1,10 @@
-package com.ltp.gradesubmission;
+package com.viettel.jobfinder;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GradeSubmissionApplicationTests {
+class JobFinderApplicationTests {
 
 	@Test
 	void contextLoads() {
