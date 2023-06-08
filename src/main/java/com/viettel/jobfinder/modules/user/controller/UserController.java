@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import io.swagger.v3.oas.annotations.media.*;
@@ -44,6 +45,7 @@ import com.viettel.jobfinder.shared.annotation.CurrentUser;
 import com.viettel.jobfinder.shared.annotation.Public;
 import com.viettel.jobfinder.shared.exception.ErrorResponse;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -82,9 +84,10 @@ public class UserController {
 
 	@PostMapping("/refresh")
 	@Public
-	public ResponseEntity<TokenResponse> refresh(@RequestHeader("Authorization") String token) {
+	public ResponseEntity<TokenResponse> refresh(HttpServletRequest request) {
 		// token = Barear + token
 		System.out.println("CHECK REFRESH");
+		String token = request.getHeader("Authorization");
 		if (token != null && token.startsWith("Bearer ")) {
 			String refresh_token = token.substring(7);
 			DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(SecurityConstants.REFRESH_SECRET_KEY))

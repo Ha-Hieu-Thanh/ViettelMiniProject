@@ -2,6 +2,8 @@ package com.viettel.jobfinder.modules.skill.dto;
 
 import javax.validation.constraints.NotBlank;
 
+import com.viettel.jobfinder.shared.validation.ValidWebsiteLink;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -13,6 +15,7 @@ public class CreateEmployeeSkillRequestDto {
   @NonNull
   private String title;
 
+  @ValidWebsiteLink
   private String certificateLink;
 
   private String score;

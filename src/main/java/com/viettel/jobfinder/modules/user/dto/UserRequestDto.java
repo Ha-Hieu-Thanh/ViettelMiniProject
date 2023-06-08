@@ -2,8 +2,10 @@ package com.viettel.jobfinder.modules.user.dto;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import com.viettel.jobfinder.modules.user.User;
 import com.viettel.jobfinder.shared.ERoleName;
@@ -31,8 +33,10 @@ public class UserRequestDto {
   private String password;
 
   @NotBlank(message = "email cannot be blank")
+  @Email(message = "email must be valid")
   @NonNull
   private String email;
+  @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "mobile phone must be valid")
   private String mobilePhone;
   private String location;
 

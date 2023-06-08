@@ -14,13 +14,14 @@ public class Utils {
     int pageNumber = data.getNumber();
     int pageSize = data.getSize();
     long totalElements = data.getTotalElements();
+    long totalPages = data.getTotalPages();
 
     // Create headers
     HttpHeaders headers = new HttpHeaders();
     headers.add("Page-Number", String.valueOf(pageNumber));
     headers.add("Page-Size", String.valueOf(pageSize));
     headers.add("Total-Elements", String.valueOf(totalElements));
-
+    headers.add("Total-Pages", String.valueOf(totalPages));
     // Convert data to the desired response type
     List<U> responseData = data.stream().map(converter).collect(Collectors.toList());
 

@@ -1,0 +1,12 @@
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=
+spring.jpa.properties.hibernate.dialect=
+
+spring.servlet.multipart.max-file-size=
+spring.servlet.multipart.max-request-size=
+
+send_grid.api_key=
+send_grid.from_email=
+send_grid.from_name=
