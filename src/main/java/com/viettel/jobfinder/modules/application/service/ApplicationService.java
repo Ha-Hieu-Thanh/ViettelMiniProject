@@ -39,6 +39,10 @@ public class ApplicationService {
   public Application applyJob(long userId, long jobId) {
     Job job = jobService.getJobById(jobId);
     Employee employee = employeeService.getEmployeeInfo(userId);
+    // check if employee already apply this job
+    if (applicationRepository.findByEmployee_IdAndJob_Id(employee.getId(), jobId).isPresent()) {
+      throw new NotFoundException("You already apply this job");
+    }
     Employer employer = job.getEmployer();
     Application application = new Application();
     application.setEmployee(employee);

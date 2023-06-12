@@ -105,7 +105,7 @@ public class ApplicationController {
       @RequestParam("userEmployeeId") long userEmployeeId,
       @RequestParam("jobId") long jobId, @Valid @RequestBody EditApplicationRequestDto data) {
     Application updatedApplication = applicationService.editApplication(userId, userEmployeeId, jobId, data);
-    return new ResponseEntity<>(new ApplicationResponseDto(updatedApplication), HttpStatus.NO_CONTENT);
+    return new ResponseEntity<>(new ApplicationResponseDto(updatedApplication), HttpStatus.OK);
   }
 
 }
